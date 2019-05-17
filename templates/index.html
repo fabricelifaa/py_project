@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='bootstrap/css/bootstrap.min.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/form.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/animate.css')}}">
+	<script type="text/javascript" src="{{url_for('static', filename='bootstrap/js/jquery-3.2.1.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='js/Chart.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='js/Chart.bundle.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='bootstrap/js/bootstrap.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='js/chartjs-plugin-zoom.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='js/hammer.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='js/moment.min.js')}}"></script>
+	<link rel="icon" type="image/png" href="{{url_for('static', filename='img/icon.png')}}">
+	<title>Caplog</title>
+
+</head>
+<body background="{{url_for('static', filename='img/background1.jpg')}}">
+
+	<nav class="navbar navbar-default">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				
+			</button>
+			<a class="navbar-brand" href="#"><span class="term"><span class="glyphicon glyphicon-stats"></span> CAPLOG </span></a>
+		</div>
+		<div class="collapse navbar-collapse">
+		<ul class="nav navbar-nav">
+			<li><a href="#" data-toggle="dropdown" class="dropdown liactived"><span> Capteurs <b class="caret"></b></span></a>
+				<ul class="dropdown-menu">
+					<li class="link btn1 dropdown-item"><button type="button" class="btn btn-default btn-block" style="border-color: white;">Température 1</button></li>
+					<li class="link btn2 dropdown-item"><button type="button" class="btn btn-default btn-block" style="border-color: white;">Température 2</button></li>
+					<li class="link btn3 dropdown-item"><button type="button" class="btn btn-default btn-block" style="border-color: white;">Pression</button></li>
+					<li class="link btn4 dropdown-item"><button class="btn btn-default btn-block" style="border-color: white;">mouvement</button></li>
+					<li class="link btn5 dropdown-item"><button class="btn btn-default btn-block" style="border-color: white;">photoélectrique</a></li>
+				</ul>
+			</li>
+			<li class="center">
+				<form method="GET" class="navbar-form input-group">
+					<input id="Rcherche" type="text" name="recherche" class="input-sm form-control" style="width: 650px;" required="enable" placeholder="Donnée/zone/type">
+					<span class="input-group-btn">
+					<button id="btn-content" type="submit" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-search"></span></button>
+					</span>
+			
+				</form>
+			</li>
+			<li class="ex-right">
+				<a href="#" class="dropdown liactived" data-toggle="dropdown">
+					<span><b class="glyphicon glyphicon-user"></b> {{global_name}}</span></a>
+				<ul class="dropdown-menu pull-right">
+					<li class="dropdown-item"><a href="{{url_for('addadmin')}}" class="btn-block"><b class="glyphicon glyphicon-plus-sign"></b> add Admin</a></li>
+					<li class="dropdown-item"><a href="{{url_for('del_admin')}}" class="btn-block"><b class="glyphicon glyphicon-minus-sign"></b> Suppr Admin</a></li>
+					<li class="dropdown-item"><a href="{{url_for('deconnexion')}}" class="btn-block"><b class="glyphicon glyphicon-log-out"></b> Déconnexion</a></li>
+					
+				</ul>
+			</li>
+		</ul>
+	</div>
+	</nav>
+
+	<div class="container">
+		<div class="row content">
+			<!-- div du resultat -->
+			<div id="content-div" class="col-md-12 well" style="display: none;">
+				<div class="modal-header"><button type="button" id="btnclose" class="close">X</button><h4 class="modal-title">Résultats de la recherche</h4></div>
+				<div id="content-result" class="table-responsive"></div>
+			</div>
+			<div class="col-md-offset-2 col-md-8 container well canvas-wrapper">
+				<button id="zoomreset" onclick="resetZoom()">Reset Zoom</button>
+				<canvas id="Line-Chart-Capteur1"></canvas>
+				<canvas id="Line-Chart-Capteur2"></canvas>
+				<canvas id="Line-Chart-Capteur3"></canvas>
+				<canvas id="Line-Chart-Capteur4"></canvas>
+				<canvas id="Line-Chart-Capteur5"></canvas>
+			</div>
+			<div class="note col-md-offset-2 col-md-8 well">
+
+				<div class="col-md-12 voir">
+					<p>voir plus</p>
+					<table class="table table-bordered table-striped table-condensed">
+						<thead>
+								<tr>
+									<th>id</th>
+									<th>Données</th>
+									<th>Date</th>
+								</tr>
+							</thead>
+					</table>
+				</div>
+				<!-- capteur 1 -->
+				<div id="capteur1" class="col-md-12 ajust table-responsive">
+
+					<table class="table table-bordered table-striped">
+						<tbody>
+							{% for row in rowsc1%}
+								<tr>
+									<td>{{row[0]}}</td>
+									<td>{{row[1]}}</td>
+									<td>{{row[2]}}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>		
+				</div>
+				<!-- capteur 2 -->
+				<div id="capteur2" class="col-md-12 ajust table-responsive" style="display: none;">
+					<table class="table table-bordered table-striped table-condensed">
+						<tbody>
+							{% for row in rowsc2%}
+								<tr>
+									<td>{{row[0]}}</td>
+									<td>{{row[1]}}</td>
+									<td>{{row[2]}}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+
+			
+				 <!-- capteur3 -->
+				<div id="capteur3" class="col-md-12 ajust table-responsive" style="display: none;">
+					<table class="table table-bordered table-striped table-condensed">
+						<tbody>
+							{% for row in rowsc3%}
+								<tr>
+									<td>{{row[0]}}</td>
+									<td>{{row[1]}}</td>
+									<td>{{row[2]}}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				<!-- capteur4 -->
+				<div id="capteur4" class="col-md-12 ajust" style="display: none;">
+					<table class="table table-bordered table-striped table-condensed">
+						<tbody>
+							{% for row in rowsc4%}
+								<tr>
+									<td>{{row[0]}}</td>
+									<td>{{row[1]}}</td>
+									<td>{{row[2]}}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				 <!-- capteur5 -->
+				<div id="capteur5" class="col-md-12 ajust" style="display: none;">
+					<table class="table table-bordered table-striped table-condensed">
+						<tbody>
+							{% for row in rowsc5%}
+								<tr>
+									<td>{{row[0]}}</td>
+									<td>{{row[1]}}</td>
+									<td>{{row[2]}}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>				
+				</div>
+			</div>
+
+		<!--	<div class="col-md-offset-1 col-md-7 container">
+
+				<embed type="image/svg+xml" src="{{graph_data|safe}}" class="embebi well" />
+				
+			</div> -->
+			
+
+		</div>
+
+	</div>
+<!-- searcher -->
+<script type="text/javascript" src="{{url_for('static', filename='js/form.js')}}">
+</script>
+<!-- switcher -->
+<script type="text/javascript" src="{{url_for('static', filename='js/main.js')}}"></script>
+<!-- graphs -->
+<script type="text/javascript">
+	'use strict';
+	// déclaration des couleurs à utilisé
+	window.chartColors = {
+
+		blue: 'rgba(51, 122, 183, 0.6)',
+		skyblue: 'rgba(90, 191, 220, 0.6)',
+		green: 'rgba(92, 184, 92, 0.6)',
+		orange: 'rgba(240, 173, 78, 0.6)',
+		dark: 'rgba(47, 47, 47, 0.6)'
+
+	};
+	var timeFormat = 'MM/DD/YYYY HH:mm';
+
+	//graph du capteur 1
+	function resetZoom() {
+		window.mychart.resetZoom();
+	}
+
+var config={
+		type: 'line',
+		data: {
+			
+			datasets:[{
+			label: 'Temprature 1',
+			backgroundColor: window.chartColors.skyblue,
+			borderColor: window.chartColors.skyblue,
+			data: [{
+				x: moment(new Date({{my_temps1c1}})).format(timeFormat),
+				y: {{data1c1}}
+			},{
+				x: moment(new Date({{my_temps2c1}})).format(timeFormat),
+				y: {{data2c1}}
+			},{
+				x: moment(new Date({{my_temps3c1}})).format(timeFormat),
+				y: {{data3c1}}
+			},{
+				x: moment(new Date({{my_temps4c1}})).format(timeFormat),
+				y: {{data4c1}}
+			},{
+				x: moment(new Date({{my_temps5c1}})).format(timeFormat),
+				y: {{data5c1}}
+			},{
+				x: moment(new Date({{my_temps6c1}})).format(timeFormat),
+				y: {{data6c1}}
+			},{
+				x: moment(new Date({{my_temps7c1}})).format(timeFormat),
+				y: {{data7c1}}
+			},{
+				x: moment(new Date({{my_temps8c1}})).format(timeFormat),
+				y: {{data8c1}}
+			},{
+				x: moment(new Date({{my_temps9c1}})).format(timeFormat),
+				y: {{data9c1}}
+			},{
+				x: moment(new Date({{my_temps10c1}})).format(timeFormat),
+				y: {{data10c1}}
+			},{
+				x: moment(new Date({{my_temps11c1}})).format(timeFormat),
+				y: {{data11c1}}
+			},{
+				x: moment(new Date({{my_temps12c1}})).format(timeFormat),
+				y: {{data12c1}}
+			},{
+				x: moment(new Date({{my_temps13c1}})).format(timeFormat),
+				y: {{data13c1}}
+			},{
+				x: moment(new Date({{my_temps14c1}})).format(timeFormat),
+				y: {{data14c1}}
+			},{
+				x: moment(new Date({{my_temps15c1}})).format(timeFormat),
+				y: {{data15c1}}
+			},{
+				x: moment(new Date({{my_temps16c1}})).format(timeFormat),
+				y: {{data16c1}}
+			},{
+				x: moment(new Date({{my_temps17c1}})).format(timeFormat),
+				y: {{data17c1}}
+			},{
+				x: moment(new Date({{my_temps18c1}})).format(timeFormat),
+				y: {{data18c1}}
+			},{
+				x: moment(new Date({{my_temps19c1}})).format(timeFormat),
+				y: {{data19c1}}
+			}
+
+			],
+			fill: true,
+		}]
+
+
+	},
+
+	options: {
+
+		responsive: true,
+		title: {
+			display: true,
+			text: 'les valeurs récents du capteurs Température 1'
+		},
+		tooltips: {
+
+			mode: 'index',
+			intersect: false,
+		},
+		legend: {
+			display: true,
+			position: 'bottom'
+
+		},
+		hover: {
+
+			mode :'nearest',
+			intersect: true
+		},
+		scales: {
+
+			xAxes: [{
+				display: true,
+				distribution: 'series',
+				ticks: {
+					source: 'data'
+				},
+
+				type: 'time',
+				time: {
+					format: timeFormat,
+					tooltipFormat: 'll DD HH:mm'
+				},
+				
+				scaleLabel: {
+
+					display: true,
+					labelString: 'Temps'
+
+				},
+				ticks: {
+					maxRotation: 0
+				}
+			}],
+			yAxes:[{
+				display: true,
+				scaleLabel:{
+					display: true,
+					labelString: 'Données'
+				}
+			}]
+		},
+		zoom: {
+				enabled: true,
+				drag: true,
+				mode: 'x',
+				limits: {
+					max: 10,
+					min: 0.5
+				}
+			}
+	}
+
+	};
+	var ctx = document.getElementById("Line-Chart-Capteur1").getContext('2d');
+	window.mychart = new Chart(ctx, config);
+
+	//graph du capteur 2
+	function resetZoom2(){
+		window.mycharte.resetZoom();
+	}
+	var config2 = {
+		type: 'line',
+		data: {
+			
+			datasets:[{
+			label: 'Capteur 2',
+			backgroundColor: window.chartColors.blue,
+			borderColor: window.chartColors.blue,
+			data: [{
+				x: moment(new Date({{my_temps1c2}})).format(timeFormat),
+				y: {{data1c2}}
+			},{
+				x: moment(new Date({{my_temps2c2}})).format(timeFormat),
+				y: {{data2c2}}
+			},{
+				x: moment(new Date({{my_temps3c2}})).format(timeFormat),
+				y: {{data3c2}}
+			},{
+				x: moment(new Date({{my_temps4c2}})).format(timeFormat),
+				y: {{data4c2}}
+			},{
+				x: moment(new Date({{my_temps5c2}})).format(timeFormat),
+				y: {{data5c2}}
+			},{
+				x: moment(new Date({{my_temps6c2}})).format(timeFormat),
+				y: {{data6c2}}
+			},{
+				x: moment(new Date({{my_temps7c2}})).format(timeFormat),
+				y: {{data7c2}}
+			},{
+				x: moment(new Date({{my_temps8c2}})).format(timeFormat),
+				y: {{data8c2}}
+			},{
+				x: moment(new Date({{my_temps9c2}})).format(timeFormat),
+				y: {{data9c2}}
+			},{
+				x: moment(new Date({{my_temps10c2}})).format(timeFormat),
+				y: {{data10c2}}
+			},{
+				x: moment(new Date({{my_temps11c2}})).format(timeFormat),
+				y: {{data11c2}}
+			},{
+				x: moment(new Date({{my_temps12c2}})).format(timeFormat),
+				y: {{data12c2}}
+			},{
+				x: moment(new Date({{my_temps13c2}})).format(timeFormat),
+				y: {{data13c2}}
+			},{
+				x: moment(new Date({{my_temps14c2}})).format(timeFormat),
+				y: {{data14c2}}
+			},{
+				x: moment(new Date({{my_temps15c2}})).format(timeFormat),
+				y: {{data15c2}}
+			},{
+				x: moment(new Date({{my_temps16c2}})).format(timeFormat),
+				y: {{data16c2}}
+			},{
+				x: moment(new Date({{my_temps17c2}})).format(timeFormat),
+				y: {{data17c2}}
+			},{
+				x: moment(new Date({{my_temps18c2}})).format(timeFormat),
+				y: {{data18c2}}
+			},{
+				x: moment(new Date({{my_temps19c2}})).format(timeFormat),
+				y: {{data19c2}}
+			}],
+			fill: true,
+		}]
+
+
+	},
+
+	options: {
+
+		responsive: true,
+		title: {
+			display: true,
+			text: 'les valeurs récents du capteurs Température 2'
+		},
+		tooltips: {
+
+			mode: 'index',
+			intersect: false,
+		},
+		legend: {
+			display: true,
+			position: 'bottom'
+
+		},
+		hover: {
+
+			mode :'nearest',
+			intersect: true
+		},
+		scales: {
+
+			xAxes: [{
+				display: true,
+				distribution: 'series',
+				ticks: {
+					source: 'data'
+				},
+
+				type: 'time',
+				time: {
+					format: timeFormat,
+					tooltipFormat: 'll HH:mm'
+				},
+				
+				scaleLabel: {
+
+					display: true,
+					labelString: 'Temps'
+
+				},
+				ticks: {
+					maxRotation: 0
+				}
+			}],
+			yAxes:[{
+				display: true,
+				scaleLabel:{
+					display: true,
+					labelString: 'Données'
+				}
+			}]
+		},
+		zoom: {
+				enabled: true,
+				drag: true,
+				mode: 'x',
+				limits: {
+					max: 10,
+					min: 0.5
+				}
+			}
+	}
+	};
+	var ctz = document.getElementById("Line-Chart-Capteur2").getContext('2d');
+	window.mycharte = new Chart(ctz, config2);
+
+	//graph du capteur 3
+	function resetZoom3(){
+		window.mychartl.resetZoom();
+	}
+	var config3 = {
+		type: 'line',
+		data: {
+			datasets:[{
+			label: 'Capteur 3',
+			backgroundColor: window.chartColors.green,
+			borderColor: window.chartColors.green,
+			data: [{
+				x: moment(new Date({{my_temps1c3}})).format(timeFormat),
+				y: {{data1c3}}
+			},{
+				x: moment(new Date({{my_temps2c3}})).format(timeFormat),
+				y: {{data2c3}}
+			},{
+				x: moment(new Date({{my_temps3c3}})).format(timeFormat),
+				y: {{data3c3}}
+			},{
+				x: moment(new Date({{my_temps4c3}})).format(timeFormat),
+				y: {{data4c3}}
+			},{
+				x: moment(new Date({{my_temps5c3}})).format(timeFormat),
+				y: {{data5c3}}
+			},{
+				x: moment(new Date({{my_temps6c3}})).format(timeFormat),
+				y: {{data6c3}}
+			},{
+				x: moment(new Date({{my_temps7c3}})).format(timeFormat),
+				y: {{data7c3}}
+			},{
+				x: moment(new Date({{my_temps8c3}})).format(timeFormat),
+				y: {{data8c3}}
+			},{
+				x: moment(new Date({{my_temps9c3}})).format(timeFormat),
+				y: {{data9c3}}
+			},{
+				x: moment(new Date({{my_temps10c3}})).format(timeFormat),
+				y: {{data10c3}}
+			},{
+				x: moment(new Date({{my_temps11c3}})).format(timeFormat),
+				y: {{data11c3}}
+			},{
+				x: moment(new Date({{my_temps12c3}})).format(timeFormat),
+				y: {{data12c3}}
+			},{
+				x: moment(new Date({{my_temps13c3}})).format(timeFormat),
+				y: {{data13c3}}
+			},{
+				x: moment(new Date({{my_temps14c3}})).format(timeFormat),
+				y: {{data14c3}}
+			},{
+				x: moment(new Date({{my_temps15c3}})).format(timeFormat),
+				y: {{data15c3}}
+			},{
+				x: moment(new Date({{my_temps16c3}})).format(timeFormat),
+				y: {{data16c3}}
+			},{
+				x: moment(new Date({{my_temps17c3}})).format(timeFormat),
+				y: {{data17c3}}
+			},{
+				x: moment(new Date({{my_temps18c3}})).format(timeFormat),
+				y: {{data18c3}}
+			},{
+				x: moment(new Date({{my_temps19c3}})).format(timeFormat),
+				y: {{data19c3}}
+			}],
+			fill: true,
+		}]
+
+
+	},
+
+	options: {
+
+		responsive: true,
+		title: {
+			display: true,
+			text: 'les valeurs récents du capteurs Pression'
+		},
+		tooltips: {
+
+			mode: 'index',
+			intersect: false
+		},
+		legend: {
+			display: true,
+			position: 'bottom'
+
+		},
+		hover: {
+
+			mode :'nearest',
+			intersect: true
+		},
+		scales: {
+
+			xAxes: [{
+				display: true,
+				distribution: 'series',
+				ticks: {
+					source: 'data'
+				},
+
+				type: 'time',
+				time: {
+					format: timeFormat,
+					tooltipFormat: 'll HH:mm'
+				},
+				
+				scaleLabel: {
+
+					display: true,
+					labelString: 'Temps'
+
+				},
+				ticks: {
+					maxRotation: 0
+				}
+			}],
+			yAxes:[{
+				display: true,
+				scaleLabel:{
+					display: true,
+					labelString: 'Données'
+				}
+			}]
+		},
+		zoom: {
+				enabled: true,
+				drag: true,
+				mode: 'x',
+				limits: {
+					max: 10,
+					min: 0.5
+				}
+			}
+	}
+
+	};
+	var ctp = document.getElementById("Line-Chart-Capteur3").getContext('2d');
+	window.mychartl = new Chart(ctp, config3);
+
+	//graph du capteur 4
+	function resetZoom4() {
+		window.mychartt.resetZoom();
+	}
+	var config4 = {
+		type: 'line',
+		data: {
+			
+			datasets:[{
+			label: 'Capteur 4',
+			backgroundColor: window.chartColors.orange,
+			borderColor: window.chartColors.orange,
+			data: [{
+				x: moment(new Date({{my_temps1c4}})).format(timeFormat),
+				y: {{data1c4}}
+			},{
+				x: moment(new Date({{my_temps2c4}})).format(timeFormat),
+				y: {{data2c4}}
+			},{
+				x: moment(new Date({{my_temps3c4}})).format(timeFormat),
+				y: {{data3c4}}
+			},{
+				x: moment(new Date({{my_temps4c4}})).format(timeFormat),
+				y: {{data4c4}}
+			},{
+				x: moment(new Date({{my_temps5c4}})).format(timeFormat),
+				y: {{data5c4}}
+			},{
+				x: moment(new Date({{my_temps6c4}})).format(timeFormat),
+				y: {{data6c4}}
+			},{
+				x: moment(new Date({{my_temps7c4}})).format(timeFormat),
+				y: {{data7c4}}
+			},{
+				x: moment(new Date({{my_temps8c4}})).format(timeFormat),
+				y: {{data8c4}}
+			},{
+				x: moment(new Date({{my_temps9c4}})).format(timeFormat),
+				y: {{data9c4}}
+			},{
+				x: moment(new Date({{my_temps10c4}})).format(timeFormat),
+				y: {{data10c4}}
+			},{
+				x: moment(new Date({{my_temps11c4}})).format(timeFormat),
+				y: {{data11c4}}
+			},{
+				x: moment(new Date({{my_temps12c4}})).format(timeFormat),
+				y: {{data12c4}}
+			},{
+				x: moment(new Date({{my_temps13c4}})).format(timeFormat),
+				y: {{data13c4}}
+			},{
+				x: moment(new Date({{my_temps14c4}})).format(timeFormat),
+				y: {{data14c4}}
+			},{
+				x: moment(new Date({{my_temps15c4}})).format(timeFormat),
+				y: {{data15c4}}
+			},{
+				x: moment(new Date({{my_temps16c4}})).format(timeFormat),
+				y: {{data16c4}}
+			},{
+				x: moment(new Date({{my_temps17c4}})).format(timeFormat),
+				y: {{data17c4}}
+			},{
+				x: moment(new Date({{my_temps18c4}})).format(timeFormat),
+				y: {{data18c4}}
+			},{
+				x: moment(new Date({{my_temps19c4}})).format(timeFormat),
+				y: {{data19c4}}
+			}
+			],
+			fill: true,
+		}]
+
+
+	},
+
+	options: {
+
+		responsive: true,
+		title: {
+			display: true,
+			text: 'les valeurs récents du capteurs Mouvement'
+		},
+		tooltips: {
+
+			mode: 'index',
+			intersect: false,
+		},
+		legend: {
+			display: true,
+			position: 'bottom'
+
+		},
+		hover: {
+
+			mode :'nearest',
+			intersect: true
+		},
+		scales: {
+
+			xAxes: [{
+				display: true,
+				distribution: 'series',
+				ticks: {
+					source: 'data'
+				},
+
+				type: 'time',
+				time: {
+					format: timeFormat,
+					tooltipFormat: 'll HH:mm'
+				},
+				
+				scaleLabel: {
+
+					display: true,
+					labelString: 'Temps'
+
+				},
+				ticks: {
+					maxRotation: 0
+				}
+			}],
+			yAxes:[{
+				display: true,
+				scaleLabel:{
+					display: true,
+					labelString: 'Données'
+				}
+			}]
+		},
+		zoom: {
+				enabled: true,
+				drag: true,
+				mode: 'x',
+				limits: {
+					max: 10,
+					min: 0.5
+				}
+			}
+	}
+
+	};
+	var cto = document.getElementById("Line-Chart-Capteur4").getContext('2d');
+	window.mychartt = new Chart(cto, config4);
+
+	//graph du capteur 5
+	function resetZoom5(){
+		window.mychartr.resetZoom();
+	}
+	var config5 = {
+		type: 'line',
+		data: {
+			
+			datasets:[{
+			label: 'Capteur 5',
+			backgroundColor: window.chartColors.dark,
+			borderColor: window.chartColors.dark,
+			data: [{
+				x: moment(new Date({{my_temps1c5}})).format(timeFormat),
+				y: {{data1c5}}
+			},{
+				x: moment(new Date({{my_temps2c5}})).format(timeFormat),
+				y: {{data2c5}}
+			},{
+				x: moment(new Date({{my_temps3c5}})).format(timeFormat),
+				y: {{data3c5}}
+			},{
+				x: moment(new Date({{my_temps4c5}})).format(timeFormat),
+				y: {{data4c5}}
+			},{
+				x: moment(new Date({{my_temps4c5}})).format(timeFormat),
+				y: {{data4c5}}
+			},{
+				x: moment(new Date({{my_temps5c5}})).format(timeFormat),
+				y: {{data5c5}}
+			},{
+				x: moment(new Date({{my_temps6c5}})).format(timeFormat),
+				y: {{data6c5}}
+			},{
+				x: moment(new Date({{my_temps7c5}})).format(timeFormat),
+				y: {{data7c5}}
+			},{
+				x: moment(new Date({{my_temps8c5}})).format(timeFormat),
+				y: {{data8c5}}
+			},{
+				x: moment(new Date({{my_temps9c5}})).format(timeFormat),
+				y: {{data9c5}}
+			},{
+				x: moment(new Date({{my_temps10c5}})).format(timeFormat),
+				y: {{data10c5}}
+			},{
+				x: moment(new Date({{my_temps11c5}})).format(timeFormat),
+				y: {{data11c5}}
+			},{
+				x: moment(new Date({{my_temps12c5}})).format(timeFormat),
+				y: {{data12c5}}
+			},{
+				x: moment(new Date({{my_temps13c5}})).format(timeFormat),
+				y: {{data13c5}}
+			},{
+				x: moment(new Date({{my_temps14c5}})).format(timeFormat),
+				y: {{data14c5}}
+			},{
+				x: moment(new Date({{my_temps15c5}})).format(timeFormat),
+				y: {{data15c5}}
+			},{
+				x: moment(new Date({{my_temps16c5}})).format(timeFormat),
+				y: {{data16c5}}
+			},{
+				x: moment(new Date({{my_temps17c5}})).format(timeFormat),
+				y: {{data17c5}}
+			},{
+				x: moment(new Date({{my_temps18c5}})).format(timeFormat),
+				y: {{data18c5}}
+			},{
+				x: moment(new Date({{my_temps19c5}})).format(timeFormat),
+				y: {{data19c5}}
+			}],
+			fill: true,
+		}]
+
+
+	},
+
+	options: {
+
+		responsive: true,
+		title: {
+			display: true,
+			text: 'les valeurs récents du capteurs photoélectrique'
+		},
+		tooltips: {
+
+			mode: 'index',
+			intersect: false,
+		},
+		legend: {
+			display: true,
+			position: 'bottom'
+
+		},
+		hover: {
+
+			mode :'nearest',
+			intersect: true
+		},
+		scales: {
+
+			xAxes: [{
+				display: true,
+				distribution: 'series',
+				ticks: {
+					source: 'data'
+				},
+
+				type: 'time',
+				time: {
+					format: timeFormat,
+					tooltipFormat: 'll HH:mm'
+				},
+				
+				scaleLabel: {
+
+					display: true,
+					labelString: 'Temps'
+
+				},
+				ticks: {
+					maxRotation: 0
+				}
+			}],
+			yAxes:[{
+				display: true,
+				scaleLabel:{
+					display: true,
+					labelString: 'Données'
+				},
+			}],
+		},
+		zoom: {
+				enabled: true,
+				drag: true,
+				mode: 'x',
+				limits: {
+					max: 10,
+					min: 0.5
+				}
+			}
+	}
+
+	};
+	var cty = document.getElementById("Line-Chart-Capteur5").getContext('2d');
+	window.mychartr = new Chart(cty, config5);
+
+</script>
+
+</body>
+</html>

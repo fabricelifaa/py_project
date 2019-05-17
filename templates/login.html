@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='bootstrap/css/bootstrap.min.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/loging.css')}}">
+	<script type="text/javascript" src="{{url_for('static', filename='bootstrap/js/jquery-3.2.1.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='bootstrap/js/bootstrap.min.js')}}"></script>
+	<link rel="icon" type="image/png" href="{{url_for('static', filename='img/icon.png')}}">
+	<title>Caplog | Loging</title>
+</head>
+<body background="{{url_for('static', filename='img/background1.jpg')}}">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-push-2 col-lg-6 col-lg-offset-3 center text-center">
+				<h1>CAPLOG <span class="glyphicon glyphicon-stats"></span></h1>
+				<form method="POST" action="{{url_for('connexion')}}" class="formmgtop">
+					<div class="form-group" >
+						<div class="input-group input-group-lg">
+							<span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+							<input type="email" name="mail" placeholder="Email" required="Enable" class="form-control form-control-lg entrer">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="input-group input-group-lg">	
+								<span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+								<input type="password" name="password" placeholder="mot de passe" required="Enable" class="form-control form-control-lg entrer">
+						</div>
+					</div>
+					<p class="alert-user alert-warning" style="display: none;">{{error}}</p>
+					<button type="submit" class="btn btn-primary btn-lg">Connexion</button>	
+				</form>	
+				<div style="text-align: left; margin-top: 5%;"><b> Mot de passe oublié ? cliquer <a href="/resetpass">ici</a></b></div> 
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			var erreur = '{{error}}';
+			if (typeof(erreur) != undefined) {
+				$('.alert-user').show('slow').delay(5000).hide('slow');
+				
+			};
+			var erreur = '';
+			$('.entrer').keyup(function() {
+				if ($(this).val().length < 6) {
+					$(this).css({
+						borderColor : 'red',
+						color : 'red'
+					});
+				}
+				else{
+					$(this).css({
+						borderColor : '#4b9cff',
+						color : '#4b9cff'
+					});
+				};
+
+			});
+		});
+	</script>
+</body>
+</html>

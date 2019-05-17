@@ -1,0 +1,46 @@
+html
+{
+    height: 100%;
+}
+ 
+body
+{
+	margin: 0;
+	padding: 0
+    height: 100%;
+    background-repeat: no-repeat;
+	background-position: center;
+	background-attachment: fixed;
+	-webkit-background-size: cover;
+	background-size: cover;
+}
+.center {
+	margin-top: 22%;
+	margin-bottom: auto;
+  width: auto;
+  height: auto;
+  padding-left: 30%;
+	padding-right: 30%;
+}
+.form-control-lg , .input-group-addon {
+	color: #337ab7;
+	opacity: 0.8;
+}
+.formmgtop{
+	margin-top: 10%;
+}
+h1{
+	color: #337ab6;
+}
+.navbar{
+
+	background-color: #4a7cb6;
+	border-color: #6f8ecf; 
+	
+}
+.header-brand{
+	color: white;
+}
+.navigue-arrow {
+	color: white;
+}

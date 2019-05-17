@@ -1,0 +1,18 @@
+
+<table class="table-bordered table-striped table table-condensed">
+	<thead>
+		<tr>
+			{{serror}}
+		</tr>
+	</thead>
+	<tbody>
+		{%for row in rows %}
+		<tr>
+			<td>{{row[0]}}</td>
+			<td>{{row[1]}}</td>
+			<td>{{row[2]}}</td>
+			<td>{{row[3]}}</td>
+		</tr>
+		{%endfor %}
+	</tbody>
+</table>

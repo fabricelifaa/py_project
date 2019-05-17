@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<script type="text/javascript" src="../static/bootstrap/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="../static/bootstrap/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../static/bootstrap/css/bootstrap.min.css">
+
+</head>
+
+	<body>
+		<form method="GET">
+			<div class="form-group"><input type="text" name="texto" class="form-control"></div>
+			<button type="submit">valider</button>
+		</form>	
+		<div id="content">
+		</div>
+		
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$('#content').hide();
+				$('form').on('submit', function(event){
+					$.ajax({
+						data: {
+							txto: $('input').val()
+						},
+						url:'/voila',
+						type: 'GET'
+					}).done(function(test){
+						$('#content').append(test.textx);
+						$('#content').show('slow');
+					});
+					event.preventDefault();
+				});
+			});
+		</script>
+	</body>
+</html>
